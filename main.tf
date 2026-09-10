@@ -1,6 +1,6 @@
 provider "google" {
-  project = "learning-508211"
-  region  = "europe-west9"
+  project = var.project_id
+  region  = var.region
 }
 
 # ---------------
@@ -66,10 +66,9 @@ resource "google_compute_health_check" "autohealing" {
 }
 
 resource "google_compute_region_instance_group_manager" "appserver" {
-  name                      = "appserver-igm"
-  base_instance_name        = "app"
-  region                    = "europe-west9"
-  distribution_policy_zones = ["europe-west9-a", "europe-west9-b", "europe-west9-c"]
+  name               = "appserver-igm"
+  base_instance_name = "app"
+  region             = var.region
 
   version {
     instance_template = google_compute_instance_template.template.self_link_unique
@@ -88,7 +87,7 @@ resource "google_compute_region_instance_group_manager" "appserver" {
 
 resource "google_compute_region_autoscaler" "appserver" {
   name   = "appserver-autoscaler"
-  region = "europe-west9"
+  region = var.region
   target = google_compute_region_instance_group_manager.appserver.id
 
   autoscaling_policy {
